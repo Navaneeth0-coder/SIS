@@ -3,200 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Information System</title>
+    <title>Student Management System</title>
     <style>
         body {
+            background-color: #b3e5fc;
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
         }
-
         .container {
-            width: 50%;
-            margin: auto;
-            background: #fff;
+            width: 600px;
+            margin: 0 auto;
             padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 50px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
-        h1 {
+        h1, h2 {
             text-align: center;
         }
-
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            margin: 10px 0 5px;
-        }
-
-        input {
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
+        .button {
+            background-color: #64b5f6;
             border: none;
-            border-radius: 4px;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #81c784;
+        }
+        input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .list {
+            margin: 20px 0;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
             cursor: pointer;
         }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .error {
-            color: red;
-            font-size: 0.9em;
-            text-align: center;
-        }
-
-        #studentSection {
-            display: none;  /* Hide student section initially */
+        #mainContent {
+            display: none; /* Hide main content initially */
         }
     </style>
 </head>
 <body>
-
-    <!-- Login Section -->
-    <div class="container" id="loginSection">
-        <h1>Teacher Login</h1>
-
-        <!-- Login Form -->
-        <form id="loginForm">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="Enter your username" required>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
-
-            <button type="button" onclick="login()">Login</button>
-
-            <div class="error" id="errorMsg"></div>
-        </form>
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
+            <h2>Teacher Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button class="button" onclick="login()">Login</button>
+        </div>
     </div>
 
-    <!-- Student Information Section (Hidden initially) -->
-    <div class="container" id="studentSection">
-        <h1>Student Information System</h1>
+    <div id="mainContent" class="container">
+        <h1>Student Management System</h1>
+        <h2>Add Student</h2>
+        <input type="text" id="name" placeholder="Student Name">
+        <input type="text" id="rollNo" placeholder="Roll Number">
+        <input type="text" id="grade" placeholder="Grade">
+        <input type="text" id="branch" placeholder="Branch">
+        <button class="button" onclick="addStudent()">Add Student</button>
 
-        <!-- Form to add student -->
-        <form id="studentForm">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" placeholder="Enter student name" required>
+        <h2>Attendance Details</h2>
+        <input type="number" id="attended" placeholder="Classes Attended">
+        <input type="number" id="total" placeholder="Total Classes">
+        <select id="studentSelect" onchange="populateStudentDetails()"></select>
+        <button class="button" onclick="calculateAttendance()">Calculate Attendance</button>
 
-            <label for="age">Age:</label>
-            <input type="number" id="age" name="age" placeholder="Enter student age" required>
-
-            <label for="grade">Grade:</label>
-            <input type="text" id="grade" name="grade" placeholder="Enter student grade" required>
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" placeholder="Enter student email" required>
-
-            <button type="button" onclick="addStudent()">Add Student</button>
-        </form>
-
-        <!-- Table to view students -->
-        <h2>Students List</h2>
-        <table id="studentsTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Age</th>
-                    <th>Grade</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Dynamic rows will be added here by JavaScript -->
-            </tbody>
-        </table>
+        <h2>All Students</h2>
+        <div class="list" id="studentList"></div>
+        
+        <button class="button" onclick="exportToExcel()">Show in Excel</button>
+        <button class="button" onclick="updateStudent()">Update Student</button>
+        <button class="button" onclick="deleteStudent()">Delete Student</button>
     </div>
 
     <script>
-        // Function to handle login
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+
+        function addStudent() {
+            const name = document.getElementById('name').value;
+            const rollNo = document.getElementById('rollNo').value;
+            const grade = document.getElementById('grade').value;
+            const branch = document.getElementById('branch').value;
+
+            if (name && rollNo && grade && branch) {
+                const student = { name, rollNo, grade, branch, attendedClasses: 0, totalClasses: 0 };
+                students.push(student);
+                saveToLocalStorage();
+                updateStudentList();
+                alert(`Student ${name} added successfully!`);
+            } else {
+                alert('Please fill in all fields.');
+            }
+        }
+
+        function populateStudentDetails() {
+            const selectedIndex = document.getElementById('studentSelect').value;
+            if (selectedIndex !== "") {
+                const student = students[selectedIndex];
+                document.getElementById('name').value = student.name;
+                document.getElementById('rollNo').value = student.rollNo;
+                document.getElementById('grade').value = student.grade;
+                document.getElementById('branch').value = student.branch;
+            }
+        }
+
+        function updateStudent() {
+            const selectedIndex = document.getElementById('studentSelect').value;
+
+            if (selectedIndex !== "") {
+                const name = document.getElementById('name').value;
+                const rollNo = document.getElementById('rollNo').value;
+                const grade = document.getElementById('grade').value;
+                const branch = document.getElementById('branch').value;
+
+                if (name && rollNo && grade && branch) {
+                    students[selectedIndex] = { name, rollNo, grade, branch, attendedClasses: 0, totalClasses: 0 };
+                    saveToLocalStorage();
+                    updateStudentList();
+                    alert(`Student ${name} updated successfully!`);
+                } else {
+                    alert('Please fill in all fields.');
+                }
+            } else {
+                alert('Please select a student to update.');
+            }
+        }
+
+        function deleteStudent() {
+            const selectedIndex = document.getElementById('studentSelect').value;
+
+            if (selectedIndex !== "") {
+                const studentName = students[selectedIndex].name;
+                students.splice(selectedIndex, 1);
+                saveToLocalStorage();
+                updateStudentList();
+                alert(`Student ${studentName} deleted successfully!`);
+            } else {
+                alert('Please select a student to delete.');
+            }
+        }
+
+        function updateStudentList() {
+            const studentSelect = document.getElementById('studentSelect');
+            const studentList = document.getElementById('studentList');
+            studentSelect.innerHTML = '';
+            studentList.innerHTML = '';
+
+            students.forEach((student, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${student.name} (Roll No: ${student.rollNo}, Grade: ${student.grade}, Branch: ${student.branch})`;
+                studentSelect.appendChild(option);
+
+                const listItem = document.createElement('div');
+                listItem.textContent = option.textContent;
+                studentList.appendChild(listItem);
+            });
+        }
+
+        function calculateAttendance() {
+            const attended = parseInt(document.getElementById('attended').value);
+            const total = parseInt(document.getElementById('total').value);
+            const selectedIndex = document.getElementById('studentSelect').value;
+
+            if (!isNaN(attended) && !isNaN(total) && selectedIndex !== "") {
+                const student = students[selectedIndex];
+                student.attendedClasses = attended;
+                student.totalClasses = total;
+                const attendancePercentage = (student.attendedClasses / student.totalClasses) * 100;
+                alert(`${student.name} Attendance: ${attendancePercentage.toFixed(2)}%`);
+            } else {
+                alert('Please enter valid numbers for attended and total classes and select a student.');
+            }
+        }
+
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Placeholder for actual username and password validation (Simulate login)
-            const validUsername = "teacher";
-            const validPassword = "password123";
-
-            if (username === validUsername && password === validPassword) {
-                // Hide login section and show student information section
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('studentSection').style.display = 'block';
+            // Hardcoded credentials for demonstration
+            if (username === 'teacher' && password === 'password123') {
+                alert('Login successful!');
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block'; // Show main content
             } else {
-                // Show error message if login fails
-                document.getElementById('errorMsg').innerText = "Invalid username or password!";
+                alert('Invalid username or password.');
             }
         }
 
-        // Function to add a student (placeholder for backend integration)
-        function addStudent() {
-            const name = document.getElementById('name').value;
-            const age = document.getElementById('age').value;
-            const grade = document.getElementById('grade').value;
-            const email = document.getElementById('email').value;
+        function exportToExcel() {
+            const worksheet = XLSX.utils.json_to_sheet(students);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
 
-            if (name === "" || age === "" || grade === "" || email === "") {
-                alert("All fields are required!");
-                return;
+            // Export to Excel
+            XLSX.writeFile(workbook, "students.xlsx");
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('students', JSON.stringify(students));
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target === document.getElementById('loginModal')) {
+                document.getElementById('loginModal').style.display = 'none';
             }
+        }
 
-            // Create a new row in the students table
-            const table = document.getElementById('studentsTable').getElementsByTagName('tbody')[0];
-            const newRow = table.insertRow();
-
-            // Insert cells
-            const cell1 = newRow.insertCell(0);
-            const cell2 = newRow.insertCell(1);
-            const cell3 = newRow.insertCell(2);
-            const cell4 = newRow.insertCell(3);
-            const cell5 = newRow.insertCell(4);
-
-            // Add text to the cells
-            cell1.innerHTML = table.rows.length;  // Auto-generate ID
-            cell2.innerHTML = name;
-            cell3.innerHTML = age;
-            cell4.innerHTML = grade;
-            cell5.innerHTML = email;
-
-            // Clear the form
-            document.getElementById('studentForm').reset();
+        // Show login modal on page load and load students from localStorage
+        window.onload = function() {
+            document.getElementById('loginModal').style.display = 'block';
+            updateStudentList(); // Load students on page load
         }
     </script>
-
 </body>
 </html>
